@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Silk.NET.Core;
@@ -211,7 +211,7 @@ unsafe class HelloTriangleApplication
 
 	void OnScroll(IMouse _, ScrollWheel scroll)
 	{
-		view.FireScrollEvent(new ULScrollEvent { type = ULScrollEventType.ByPixel, deltaX = (int)scroll.X * 100, deltaY = (int)scroll.Y * 100 });
+		view.FireScrollEvent(new ULScrollEvent { Type = ULScrollEventType.ByPixel, DeltaX = (int)scroll.X * 100, DeltaY = (int)scroll.Y * 100 });
 	}
 
 	void OnMouseDown(IMouse mouse, MouseButton button)
@@ -279,8 +279,8 @@ unsafe class HelloTriangleApplication
 		view = renderer.CreateView((uint)window!.Size.X, (uint)window!.Size.Y, new() { IsAccelerated = true, IsTransparent = false });
 		bool loaded = false;
 		view.OnFinishLoading += (frameId, isMain, url) => loaded = true;
-		view.HTML = "<html><body><p>123</p></body></html>";
-		//view.URL = "https://youtube.com";
+		//view.HTML = "<html><body><p>123</p></body></html>";
+		view.URL = "www.github.com";
 		while (!loaded) { renderer.Update(); Thread.Sleep(10); }
 
 		renderer.Render();

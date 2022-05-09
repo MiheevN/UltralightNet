@@ -18,7 +18,7 @@ namespace UltralightNet.Veldrid.TestApp
 {
 	class Program
 	{
-		private const GraphicsBackend BACKEND = GraphicsBackend.OpenGL;
+		private const GraphicsBackend BACKEND = GraphicsBackend.Vulkan;
 		private const bool TRANSPARENT = false;
 
 		private const uint Width = 1024;
@@ -163,11 +163,14 @@ void main()
 				IsAccelerated = true,
 				IsTransparent = false,
 			});
+
 			//View cpuView = new(renderer, Width, Height, TRANSPARENT, Session.DefaultSession(renderer), true);
 
 			const string url = /*"https://en.key-test.ru/";*/"https://github.com/SupinePandora43";
 
-			view.URL = url;
+			//view.URL = url;
+
+			view.HTML = "<html><body><p>123</p></body></html>";
 			//cpuView.URL = url;
 
 			/*try
@@ -181,7 +184,7 @@ void main()
 			}
 			finally { }*/
 
-			view.HTML = "<html><body><p>123</p></body></html>";
+			//view.HTML = "<html><body><p>123</p></body></html>";
 
 			//view.HTML = htmlText;
 			//cpuView.HTML = htmlText;
@@ -271,8 +274,8 @@ void main()
 			{
 				ULScrollEvent scrollEvent = new()
 				{
-					type = ULScrollEventType.ByPixel,
-					deltaY = (int)mw.WheelDelta * 100
+					Type = ULScrollEventType.ByPixel,
+					DeltaY = (int)mw.WheelDelta * 100
 				};
 				view.FireScrollEvent(scrollEvent);
 				//cpuView.FireScrollEvent(scrollEvent);
@@ -321,7 +324,7 @@ void main()
 			{
 				Console.WriteLine("Dom is ready");
 
-				// view.EvaluateScript("window.location = \"https://heeeeeeeey.com/\"", out string exception);
+				//view.EvaluateScript("window.location = \"https://heeeeeeeey.com/\"", out string exception);
 			});
 
 			IntPtr rendererPtr = renderer.Ptr;
