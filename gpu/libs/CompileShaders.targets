@@ -4,7 +4,7 @@
 	</ItemGroup>
 	<Target Name="CompileShaders" Inputs="@(Shaders)" Outputs="../../shaders/compiled/**" BeforeTargets="ResolveReferences">
         <MakeDir Directories="../../shaders/compiled;../../shaders/compiled/spirv;../../shaders/compiled/glsl" />
-        <Exec Command="glslc -O -g -o ../../shaders/compiled/spirv/%(Shaders.Filename)%(Shaders.Extension).spv %(Shaders.Identity)" EchoOff="false" />
-        <Exec Command="spirv-cross --version 420 ../../shaders/compiled/spirv/%(Shaders.Filename)%(Shaders.Extension).spv --output ../../shaders/compiled/glsl/%(Shaders.Filename)%(Shaders.Extension)" EchoOff="false" />
+        <Exec Command="C:\VulkanSDK\1.3.211.0\Bin\glslc.exe -O -g -o ../../shaders/compiled/spirv/%(Shaders.Filename)%(Shaders.Extension).spv %(Shaders.Identity)" EchoOff="false" />
+        <Exec Command="C:\VulkanSDK\1.3.211.0\Bin\spirv-cross.exe --version 420 ../../shaders/compiled/spirv/%(Shaders.Filename)%(Shaders.Extension).spv --output ../../shaders/compiled/glsl/%(Shaders.Filename)%(Shaders.Extension)" EchoOff="false" />
     </Target>
 </Project>

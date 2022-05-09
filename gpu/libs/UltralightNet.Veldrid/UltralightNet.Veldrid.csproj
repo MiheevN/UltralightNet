@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0</TargetFrameworks>
+		<TargetFramework>net6.0</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>preview</LangVersion>
 
@@ -13,14 +13,14 @@
 	<Import Project="../CompileShaders.targets" />
 
 	<ItemGroup>
-	  <EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill.vert.spv" />
-	  <EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill.frag.spv" />
-	  <EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill_path.vert.spv" />
-	  <EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill_path.frag.spv" />
+		<EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill.vert.spv" />
+		<EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill.frag.spv" />
+		<EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill_path.vert.spv" />
+		<EmbeddedResource Include="../../shaders/compiled/spirv/shader_fill_path.frag.spv" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Veldrid" Version="4.9.0-ga769c2971c" />
+		<ProjectReference Include="..\..\..\..\VulkanVeldrid\src\Veldrid\Veldrid.csproj" />
 		<PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
 	</ItemGroup>
 
@@ -28,7 +28,7 @@
 		<ProjectReference Include="..\..\..\src\Supine.Unstride\Supine.Unstride.csproj" />
 		<ProjectReference Include="..\..\..\src\UltralightNet\UltralightNet.csproj" />
 		<ProjectReference Include="..\UltralightNet.GPUCommon\UltralightNet.GPUCommon.csproj" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
 	</ItemGroup>
 
 </Project>

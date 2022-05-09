@@ -341,7 +341,7 @@ namespace UltralightNet.Veldrid
 			Console.WriteLine($"CreateRenderBuffer({render_buffer_id})");
 #endif
 			RenderBufferEntry entry = RenderBufferEntries[render_buffer_id];
-			TextureEntry textureEntry = TextureEntries[buffer.texture_id];
+			TextureEntry textureEntry = TextureEntries[buffer.TextureId];
 
 			entry.textureEntry = textureEntry;
 
@@ -375,7 +375,7 @@ namespace UltralightNet.Veldrid
 			uint commandId = 0;
 
 			if(IsVulkan){
-				if(uniformBuffer is null || uniformResourceSet is null || UniformBufferCommandLength < list.size)){
+				if(uniformBuffer is null || uniformResourceSet is null || UniformBufferCommandLength < list.size){
 					if(uniformBuffer is not null) uniformBuffer.Dispose();
 					uniformBuffer = graphicsDevice.ResourceFactory.CreateBuffer(new BufferDescription((uint)768 * list.size, BufferUsage.UniformBuffer));
 					UniformBufferCommandLength = list.size;
@@ -389,7 +389,7 @@ namespace UltralightNet.Veldrid
 				Span<Uniforms> uniformSpan = FakeMappedUniformBuffer; // implicit conversion :)
 
 				foreach(ULCommand command in list.ToSpan()){
-					if(command.command_type is ULCommandType.DrawGeometry){
+					if(command.CommandType is ULCommandType.DrawGeometry){
 						Unsafe.SkipInit(out Uniforms uniforms);
 						uniforms.State.X = state.viewport_width;
 						uniforms.State.Y = state.viewport_height;
