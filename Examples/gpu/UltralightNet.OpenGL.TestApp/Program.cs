@@ -71,7 +71,7 @@ void main()
 			API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, 0/*ContextFlags.ForwardCompatible*/, new APIVersion(4, 5)),
 			Samples = -1,
 			FramesPerSecond = 120,
-			UpdatesPerSecond = 240,
+			UpdatesPerSecond = 120,
 			VSync = false
 		});
 
@@ -215,9 +215,9 @@ void main()
 
 		view = renderer.CreateView(512, 512, new ULViewConfig { IsAccelerated = true, IsTransparent = false });
 
-		view.URL = "https://vk.com/supinepandora43";
+		//view.URL = "https://vk.com/supinepandora43";
 		//view.URL = "https://twitter.com/@supinepandora43";
-		//view.URL = "https://youtube.com";
+		view.URL = "https://youtube.com";
 		//view.HTML = "<html><body><p>123</p></body></html>";
 		bool loaded = false;
 
