@@ -21,8 +21,8 @@ namespace UltralightNet.Veldrid.TestApp
 		private const GraphicsBackend BACKEND = GraphicsBackend.Direct3D11;
 		private const bool WaitForLoad = false;
 
-		private const uint Width = 1024;
-		private const uint Height = 512;
+		private const uint Width = 1920;
+		private const uint Height = 1080;
 
 		private static readonly ULConfig config = new()
 		{
@@ -175,7 +175,10 @@ void main()
 
 			//view.HTML = "<html><body><p>123</p></body></html>";
 			//view.URL = "https://github.com";
-			view.URL = "https://youtu.be/YNL692WN6EE";
+			view.URL =
+			"https://www.youtube.com/watch?v=xrXKVgsMBcs";
+			view.Focus();
+			//"https://www.testufo.com/";
 			//cpuView.URL = url;
 
 			/*try
@@ -210,97 +213,97 @@ void main()
 
 			bool cpu = false;
 
-			window.MouseMove += (mm) =>
-			{
-				x = (int)mm.MousePosition.X;
-				y = (int)mm.MousePosition.Y;
+			//window.MouseMove += (mm) =>
+			//{
+			//	x = (int)mm.MousePosition.X;
+			//	y = (int)mm.MousePosition.Y;
 
-				ULMouseEvent mouseEvent = new()
-				{
-					Type = ULMouseEventType.MouseMoved,
-					X = x,
-					Y = y,
-					Button = ULMouseEventButton.None
-				};
+			//	ULMouseEvent mouseEvent = new()
+			//	{
+			//		Type = ULMouseEventType.MouseMoved,
+			//		X = x,
+			//		Y = y,
+			//		Button = ULMouseEventButton.None
+			//	};
 
-				view.FireMouseEvent(mouseEvent);
-				//cpuView.FireMouseEvent(mouseEvent);
-			};
-			window.MouseDown += (md) =>
-			{
-				Console.WriteLine($"Mouse Down {md.Down} {md.MouseButton}");
-				if (md.MouseButton is MouseButton.Right) cpu = !cpu;
-				if (md.MouseButton is MouseButton.Button1)
-				{
-					view.GoBack();
-					//cpuView.GoBack();
-				}
-				else if (md.MouseButton is MouseButton.Button2)
-				{
-					view.GoForward();
-					//cpuView.GoForward();
-				}
-				ULMouseEvent mouseEvent = new()
-				{
-					Type = ULMouseEventType.MouseDown,
-					X = x,
-					Y = y,
-					Button = md.MouseButton switch
-					{
-						MouseButton.Left => ULMouseEventButton.Left,
-						MouseButton.Right => ULMouseEventButton.Right,
-						MouseButton.Middle => ULMouseEventButton.Middle,
-						_ => ULMouseEventButton.None
-					}
-				};
-				view.FireMouseEvent(mouseEvent);
-				//cpuView.FireMouseEvent(mouseEvent);
-			};
-			window.MouseUp += (mu) =>
-			{
-				Console.WriteLine($"Mouse up {mu.Down} {mu.MouseButton}");
-				ULMouseEvent mouseEvent = new()
-				{
-					Type = ULMouseEventType.MouseUp,
-					X = x,
-					Y = y,
-					Button = mu.MouseButton switch
-					{
-						MouseButton.Left => ULMouseEventButton.Left,
-						MouseButton.Right => ULMouseEventButton.Right,
-						MouseButton.Middle => ULMouseEventButton.Middle,
-						_ => ULMouseEventButton.None
-					}
-				};
-				view.FireMouseEvent(mouseEvent);
-				//cpuView.FireMouseEvent(mouseEvent);
-			};
-			window.MouseWheel += (mw) =>
-			{
-				ULScrollEvent scrollEvent = new()
-				{
-					Type = ULScrollEventType.ByPixel,
-					DeltaY = (int)mw.WheelDelta * 100
-				};
-				view.FireScrollEvent(scrollEvent);
-				//cpuView.FireScrollEvent(scrollEvent);
-			};
+			//	view.FireMouseEvent(mouseEvent);
+			//	//cpuView.FireMouseEvent(mouseEvent);
+			//};
+			//window.MouseDown += (md) =>
+			//{
+			//	Console.WriteLine($"Mouse Down {md.Down} {md.MouseButton}");
+			//	if (md.MouseButton is MouseButton.Right) cpu = !cpu;
+			//	if (md.MouseButton is MouseButton.Button1)
+			//	{
+			//		view.GoBack();
+			//		//cpuView.GoBack();
+			//	}
+			//	else if (md.MouseButton is MouseButton.Button2)
+			//	{
+			//		view.GoForward();
+			//		//cpuView.GoForward();
+			//	}
+			//	ULMouseEvent mouseEvent = new()
+			//	{
+			//		Type = ULMouseEventType.MouseDown,
+			//		X = x,
+			//		Y = y,
+			//		Button = md.MouseButton switch
+			//		{
+			//			MouseButton.Left => ULMouseEventButton.Left,
+			//			MouseButton.Right => ULMouseEventButton.Right,
+			//			MouseButton.Middle => ULMouseEventButton.Middle,
+			//			_ => ULMouseEventButton.None
+			//		}
+			//	};
+			//	view.FireMouseEvent(mouseEvent);
+			//	//cpuView.FireMouseEvent(mouseEvent);
+			//};
+			//window.MouseUp += (mu) =>
+			//{
+			//	Console.WriteLine($"Mouse up {mu.Down} {mu.MouseButton}");
+			//	ULMouseEvent mouseEvent = new()
+			//	{
+			//		Type = ULMouseEventType.MouseUp,
+			//		X = x,
+			//		Y = y,
+			//		Button = mu.MouseButton switch
+			//		{
+			//			MouseButton.Left => ULMouseEventButton.Left,
+			//			MouseButton.Right => ULMouseEventButton.Right,
+			//			MouseButton.Middle => ULMouseEventButton.Middle,
+			//			_ => ULMouseEventButton.None
+			//		}
+			//	};
+			//	view.FireMouseEvent(mouseEvent);
+			//	//cpuView.FireMouseEvent(mouseEvent);
+			//};
+			//window.MouseWheel += (mw) =>
+			//{
+			//	ULScrollEvent scrollEvent = new()
+			//	{
+			//		Type = ULScrollEventType.ByPixel,
+			//		DeltaY = (int)mw.WheelDelta * 100
+			//	};
+			//	view.FireScrollEvent(scrollEvent);
+			//	//cpuView.FireScrollEvent(scrollEvent);
+			//};
 
 			// idk why
 			view.Focus();
 			//cpuView.Focus();
 
-			window.KeyDown += (kd) =>
-			{
-				view.FireKeyEvent(kd.ToULKeyEvent());
-				//cpuView.FireKeyEvent(kd.ToULKeyEvent());
-			};
+			//window.KeyDown += (kd) =>
+			//{
+			//	view.FireKeyEvent(kd.ToULKeyEvent());
+			//	//cpuView.FireKeyEvent(kd.ToULKeyEvent());
+			//};
 
-			window.KeyUp += (ku) =>
-			{
-				view.FireKeyEvent(ku.ToULKeyEvent());
-				//cpuView.FireKeyEvent(ku.ToULKeyEvent());
-			};
+			//window.KeyUp += (ku) =>
+			//{
+			//	view.FireKeyEvent(ku.ToULKeyEvent());
+			//	//cpuView.FireKeyEvent(ku.ToULKeyEvent());
+			//};
 
 			window.Resized += () =>
 			{

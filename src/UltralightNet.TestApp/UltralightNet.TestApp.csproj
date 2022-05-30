@@ -9,12 +9,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="UltralightNet.Binaries" Version="$(Version)" />
-		<PackageReference Include="UltralightNet.AppCore" Version="$(Version)" />
-		<PackageReference Include="UltralightNet.Resources" Version="$(Version)" />
-	</ItemGroup>
-
-	<ItemGroup>
+		<ProjectReference Include="..\UltralightNet.Binaries\UltralightNet.Binaries.csproj" />
+		<ProjectReference Include="..\UltralightNet.Resources\UltralightNet.Resources.csproj" />
 		<ProjectReference Include="..\UltralightNet\UltralightNet.csproj" />
 		<ProjectReference Include="..\UltralightNet.AppCore\UltralightNet.AppCore.csproj" />
 	</ItemGroup>

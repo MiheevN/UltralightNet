@@ -30,10 +30,15 @@ namespace UltralightNet.Veldrid.SDL2
 			else
 				keycode = SDLtoUL(key);
 
-			if (k.Down && false)
-				if (key > (Key)82 && key < (Key)119)
+			if (k.Down)
+				if (key > (Key)82 && key < (Key)119 || key == Key.Space)
 				{
-					//type = ULKeyEventType.Char;
+					type = ULKeyEventType.Char;
+					if (key == Key.Space)
+					{
+						text = " ";
+					}
+					else
 					if (key < (Key)109)
 					{
 						text = ((modifiers & ULKeyEventModifiers.ShiftKey) is not 0) ? key.ToString() : key.ToString().ToLower();
@@ -44,7 +49,8 @@ namespace UltralightNet.Veldrid.SDL2
 					}
 				}
 
-			return new ULKeyEvent(type, modifiers, keycode, 0, text, text, false, k.Repeat, false);
+			return new ULKeyEvent(type, modifiers, keycode, 0, text, text,
+				key > (Key)66 && key < (Key)77, k.Repeat, false);
 		}
 		public static int SDLtoUL(Key key)
 		{
@@ -93,6 +99,7 @@ namespace UltralightNet.Veldrid.SDL2
 				Key.KeypadSubtract => ULKeyCodes.GK_SUBTRACT,
 				Key.KeypadAdd => ULKeyCodes.GK_ADD,
 				Key.KeypadDecimal => ULKeyCodes.GK_DECIMAL,
+				Key.KeypadEnter => ULKeyCodes.GK_RETURN,
 
 				Key.Escape => ULKeyCodes.GK_ESCAPE,
 				Key.Tilde => ULKeyCodes.GK_OEM_3,
@@ -103,6 +110,7 @@ namespace UltralightNet.Veldrid.SDL2
 
 				Key.Slash => ULKeyCodes.GK_OEM_2,
 
+				Key.BackSpace => ULKeyCodes.GK_BACK,
 
 				Key.PrintScreen => ULKeyCodes.GK_SNAPSHOT,
 				Key.ScrollLock => ULKeyCodes.GK_SCROLL,
@@ -118,8 +126,7 @@ namespace UltralightNet.Veldrid.SDL2
 				Key.Right=> ULKeyCodes.GK_RIGHT,
 				Key.Up => ULKeyCodes.GK_UP,
 				Key.Down => ULKeyCodes.GK_DOWN,
-
-
+								
 				_ => (int)key + 29
 			};
 

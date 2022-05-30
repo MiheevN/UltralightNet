@@ -15,10 +15,11 @@ namespace UltralightNetTestApplication
 
 			Renderer renderer = ULPlatform.CreateRenderer(new());
 			View view = renderer.CreateView(512, 512);
-
+			view.URL =
+			"https://www.youtube.com/watch?v=xrXKVgsMBcs";
+			view.Focus();
 			ref readonly JSContext context = ref view.LockJSContext();
-
-			// context.GlobalObject["GetMessage"] = (JSObject) (arguments) => (JSValue) "Hello from C#!";
+			//context.GlobalObject["GetMessage"] = (JSObject) (arguments) => (JSValue) "Hello from C#!";
 
 			delegate* unmanaged[Cdecl]<void*, void*, void*, nuint, void**, void**, void*> f = &GetMessage;
 			context.GlobalObject["GetMessage"] = f;
@@ -28,6 +29,8 @@ namespace UltralightNetTestApplication
 			view.UnlockJSContext();
 
 			Console.WriteLine(view.EvaluateScript("GetMessage()", out _));
+			while (true)
+				renderer.Update();
 		}
 
 		[UnmanagedCallersOnly(CallConvs = new Type[] { typeof(CallConvCdecl) })]

@@ -6,22 +6,16 @@
 		<LangVersion>9</LangVersion>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="UltralightNet.Binaries" Version="$(Version)" />
-		<PackageReference Include="UltralightNet.AppCore" Version="$(Version)" />
-		<PackageReference Include="UltralightNet.Resources" Version="$(Version)" />
-		<PackageReference Include="Veldrid" Version="4.9.0-beta1" />
-		<PackageReference Include="Veldrid.SDL2" Version="4.9.0-beta1" />
-		<PackageReference Include="Veldrid.StartupUtilities" Version="4.9.0-beta1" />
-		<!--<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />-->
-	</ItemGroup>
-
 	<!--ItemGroup>
 		<DirectPInvoke Include="Ultralight" />
 		<NativeLibrary Include="Ultralight.lib" />
 	</ItemGroup-->
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\..\VulkanVeldrid\src\Veldrid.StartupUtilities\Veldrid.StartupUtilities.csproj" />
+		<ProjectReference Include="..\..\..\gpu\libs\UltralightNet.GPUCommon\UltralightNet.GPUCommon.csproj" />
+		<ProjectReference Include="..\..\..\src\UltralightNet.Binaries\UltralightNet.Binaries.csproj" />
+		<ProjectReference Include="..\..\..\src\UltralightNet.Resources\UltralightNet.Resources.csproj" />
 		<ProjectReference Include="..\..\..\src\UltralightNet.Veldrid.SDL2\UltralightNet.Veldrid.SDL2.csproj" />
 		<ProjectReference Include="..\..\..\src\UltralightNet\UltralightNet.csproj" />
 		<ProjectReference Include="..\..\..\src\UltralightNet.AppCore\UltralightNet.AppCore.csproj" />
