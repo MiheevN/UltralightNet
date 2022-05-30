@@ -13,41 +13,81 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.SPIRV;
 using Veldrid.StartupUtilities;
+using TerraFX.Interop.Windows;
 
 namespace UltralightNet.Veldrid.TestApp
 {
 	class Program
 	{
-		private const GraphicsBackend BACKEND = GraphicsBackend.Direct3D11;
+		private const GraphicsBackend BACKEND = GraphicsBackend.Vulkan;
 		private const bool WaitForLoad = false;
 
-		private const uint Width = 1920;
-		private const uint Height = 1080;
+		private const uint Width = 512;
+		private const uint Height = 512;
 
 		private static readonly ULConfig config = new()
 		{
 			ForceRepaint = false,
 			CachePath = "./cache/",
-			//BitmapAlignment = 0 // improves performance
-			FaceWinding = ULFaceWinding.Clockwise
+			BitmapAlignment = 1, // improves performance (veldrid only)
+			FaceWinding = ULFaceWinding.CounterClockwise
 		};
-		private static readonly ULViewConfig viewConfig = new()
+		private static ULViewConfig viewConfig = new()
 		{
 			IsAccelerated = true,
 			IsTransparent = false
 		};
 
+		private static float scale = 1;
+
 		[DllImport("Ultralight", EntryPoint = "?GetKeyIdentifierFromVirtualKeyCode@ultralight@@YAXHAEAVString@1@@Z")]
 		private static extern void GetKey(int i, IntPtr id);
 
 		[MethodImpl(MethodImplOptions.AggressiveOptimization)]
-		public static void Main()
+		public unsafe static void Main()
 		{
 			Stopwatch framerateStopwatch = new();
+
+			static bool EnableDPIAwareness()
+			{
+				if(OperatingSystem.IsWindowsVersionAtLeast(8, 1))
+					Windows.SetProcessDpiAwareness(PROCESS_DPI_AWARENESS.PROCESS_PER_MONITOR_DPI_AWARE);
+				else if(OperatingSystem.IsWindowsVersionAtLeast(6))
+					Windows.SetProcessDPIAware();
+				else return false;
+				return true;
+			}
+
+			if(EnableDPIAwareness())
+			{
+				HMONITOR monitor = Windows.MonitorFromPoint(new TerraFX.Interop.Windows.POINT(1, 1), MONITOR.MONITOR_DEFAULTTONEAREST);
+				if(OperatingSystem.IsWindowsVersionAtLeast(8, 1))
+				{
+					try {
+						DEVICE_SCALE_FACTOR factor;
+						Windows.GetScaleFactorForMonitor(monitor, &factor);
+						scale = (float)factor / 100f;
+					} catch {
+						uint dpiX, dpiY;
+						Windows.GetDpiForMonitor(monitor, MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+						scale = ((float)(dpiX + dpiY)/2)/96f;
+					}
+				}
+				else if(OperatingSystem.IsWindows())
+				{
+					HDC dc = Windows.GetDC(HWND.NULL);
+					int dpiX = Windows.GetDeviceCaps(dc, Windows.LOGPIXELSX), dpiY = Windows.GetDeviceCaps(dc, Windows.LOGPIXELSY);
+					scale = ((float)(dpiX + dpiY)/2)/96f;
+					Windows.ReleaseDC(HWND.NULL, dc);
+				}
+			}
+
+			viewConfig.InitialDeviceScale = scale;
+
 			WindowCreateInfo windowCI = new()
 			{
-				WindowWidth = (int)Width,
-				WindowHeight = (int)Height,
+				WindowWidth = (int)(Width * scale),
+				WindowHeight = (int)(Height * scale),
 				WindowTitle = "UltralightNet.Veldrid.TestApp",
 				X = 100,
 				Y = 100
@@ -164,8 +204,7 @@ void main()
 			ULPlatform.GPUDriver = gpuDriver.GetGPUDriver();
 
 			Renderer renderer = ULPlatform.CreateRenderer(config);
-			Session session = renderer.CreateSession(true, "Cookies_please");
-			View view = renderer.CreateView(Width, Height, viewConfig, session);
+			View view = renderer.CreateView((uint)(Width * scale), (uint)(Height * scale), viewConfig, renderer.CreateSession(true, "Cookies_please"));
 
 			//View cpuView = new(renderer, Width, Height, TRANSPARENT, Session.DefaultSession(renderer), true);
 
@@ -173,12 +212,9 @@ void main()
 
 			//view.URL = url;
 
-			//view.HTML = "<html><body><p>123</p></body></html>";
+			view.HTML = "<html><body><p>123</p></body></html>";
 			//view.URL = "https://github.com";
-			view.URL =
-			"https://www.youtube.com/watch?v=xrXKVgsMBcs";
-			view.Focus();
-			//"https://www.testufo.com/";
+			//view.URL = "https://youtu.be/YNL692WN6EE";
 			//cpuView.URL = url;
 
 			/*try
@@ -213,97 +249,97 @@ void main()
 
 			bool cpu = false;
 
-			//window.MouseMove += (mm) =>
-			//{
-			//	x = (int)mm.MousePosition.X;
-			//	y = (int)mm.MousePosition.Y;
+			window.MouseMove += (mm) =>
+			{
+				x = (int)mm.MousePosition.X;
+				y = (int)mm.MousePosition.Y;
 
-			//	ULMouseEvent mouseEvent = new()
-			//	{
-			//		Type = ULMouseEventType.MouseMoved,
-			//		X = x,
-			//		Y = y,
-			//		Button = ULMouseEventButton.None
-			//	};
+				ULMouseEvent mouseEvent = new()
+				{
+					Type = ULMouseEventType.MouseMoved,
+					X = (int)(x/scale),
+					Y = (int)(y/scale),
+					Button = ULMouseEventButton.None
+				};
 
-			//	view.FireMouseEvent(mouseEvent);
-			//	//cpuView.FireMouseEvent(mouseEvent);
-			//};
-			//window.MouseDown += (md) =>
-			//{
-			//	Console.WriteLine($"Mouse Down {md.Down} {md.MouseButton}");
-			//	if (md.MouseButton is MouseButton.Right) cpu = !cpu;
-			//	if (md.MouseButton is MouseButton.Button1)
-			//	{
-			//		view.GoBack();
-			//		//cpuView.GoBack();
-			//	}
-			//	else if (md.MouseButton is MouseButton.Button2)
-			//	{
-			//		view.GoForward();
-			//		//cpuView.GoForward();
-			//	}
-			//	ULMouseEvent mouseEvent = new()
-			//	{
-			//		Type = ULMouseEventType.MouseDown,
-			//		X = x,
-			//		Y = y,
-			//		Button = md.MouseButton switch
-			//		{
-			//			MouseButton.Left => ULMouseEventButton.Left,
-			//			MouseButton.Right => ULMouseEventButton.Right,
-			//			MouseButton.Middle => ULMouseEventButton.Middle,
-			//			_ => ULMouseEventButton.None
-			//		}
-			//	};
-			//	view.FireMouseEvent(mouseEvent);
-			//	//cpuView.FireMouseEvent(mouseEvent);
-			//};
-			//window.MouseUp += (mu) =>
-			//{
-			//	Console.WriteLine($"Mouse up {mu.Down} {mu.MouseButton}");
-			//	ULMouseEvent mouseEvent = new()
-			//	{
-			//		Type = ULMouseEventType.MouseUp,
-			//		X = x,
-			//		Y = y,
-			//		Button = mu.MouseButton switch
-			//		{
-			//			MouseButton.Left => ULMouseEventButton.Left,
-			//			MouseButton.Right => ULMouseEventButton.Right,
-			//			MouseButton.Middle => ULMouseEventButton.Middle,
-			//			_ => ULMouseEventButton.None
-			//		}
-			//	};
-			//	view.FireMouseEvent(mouseEvent);
-			//	//cpuView.FireMouseEvent(mouseEvent);
-			//};
-			//window.MouseWheel += (mw) =>
-			//{
-			//	ULScrollEvent scrollEvent = new()
-			//	{
-			//		Type = ULScrollEventType.ByPixel,
-			//		DeltaY = (int)mw.WheelDelta * 100
-			//	};
-			//	view.FireScrollEvent(scrollEvent);
-			//	//cpuView.FireScrollEvent(scrollEvent);
-			//};
+				view.FireMouseEvent(mouseEvent);
+				//cpuView.FireMouseEvent(mouseEvent);
+			};
+			window.MouseDown += (md) =>
+			{
+				Console.WriteLine($"Mouse Down {md.Down} {md.MouseButton}");
+				if (md.MouseButton is MouseButton.Right) cpu = !cpu;
+				if (md.MouseButton is MouseButton.Button1)
+				{
+					view.GoBack();
+					//cpuView.GoBack();
+				}
+				else if (md.MouseButton is MouseButton.Button2)
+				{
+					view.GoForward();
+					//cpuView.GoForward();
+				}
+				ULMouseEvent mouseEvent = new()
+				{
+					Type = ULMouseEventType.MouseDown,
+					X = (int)(x/scale),
+					Y = (int)(y/scale),
+					Button = md.MouseButton switch
+					{
+						MouseButton.Left => ULMouseEventButton.Left,
+						MouseButton.Right => ULMouseEventButton.Right,
+						MouseButton.Middle => ULMouseEventButton.Middle,
+						_ => ULMouseEventButton.None
+					}
+				};
+				view.FireMouseEvent(mouseEvent);
+				//cpuView.FireMouseEvent(mouseEvent);
+			};
+			window.MouseUp += (mu) =>
+			{
+				Console.WriteLine($"Mouse up {mu.Down} {mu.MouseButton}");
+				ULMouseEvent mouseEvent = new()
+				{
+					Type = ULMouseEventType.MouseUp,
+					X = (int)(x/scale),
+					Y = (int)(y/scale),
+					Button = mu.MouseButton switch
+					{
+						MouseButton.Left => ULMouseEventButton.Left,
+						MouseButton.Right => ULMouseEventButton.Right,
+						MouseButton.Middle => ULMouseEventButton.Middle,
+						_ => ULMouseEventButton.None
+					}
+				};
+				view.FireMouseEvent(mouseEvent);
+				//cpuView.FireMouseEvent(mouseEvent);
+			};
+			window.MouseWheel += (mw) =>
+			{
+				ULScrollEvent scrollEvent = new()
+				{
+					Type = ULScrollEventType.ByPixel,
+					DeltaY = (int)mw.WheelDelta * 100
+				};
+				view.FireScrollEvent(scrollEvent);
+				//cpuView.FireScrollEvent(scrollEvent);
+			};
 
 			// idk why
 			view.Focus();
 			//cpuView.Focus();
 
-			//window.KeyDown += (kd) =>
-			//{
-			//	view.FireKeyEvent(kd.ToULKeyEvent());
-			//	//cpuView.FireKeyEvent(kd.ToULKeyEvent());
-			//};
+			window.KeyDown += (kd) =>
+			{
+				view.FireKeyEvent(kd.ToULKeyEvent());
+				//cpuView.FireKeyEvent(kd.ToULKeyEvent());
+			};
 
-			//window.KeyUp += (ku) =>
-			//{
-			//	view.FireKeyEvent(ku.ToULKeyEvent());
-			//	//cpuView.FireKeyEvent(ku.ToULKeyEvent());
-			//};
+			window.KeyUp += (ku) =>
+			{
+				view.FireKeyEvent(ku.ToULKeyEvent());
+				//cpuView.FireKeyEvent(ku.ToULKeyEvent());
+			};
 
 			window.Resized += () =>
 			{
@@ -424,7 +460,6 @@ void main()
 				// Thread.Sleep(1000 / 60 / 10); // ~600 fps
 			}
 
-			GC.KeepAlive(session);
 			renderer.Dispose();
 		}
 	}

@@ -10,6 +10,21 @@ namespace System.Runtime.InteropServices
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void Free(void* memory) => Marshal.FreeHGlobal((IntPtr)memory);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void* Realloc(void* memory, nuint size) => (void*)Marshal.ReAllocHGlobal((IntPtr)memory, new((void*)size));
+	}
+}
+#endif
+#if !(NETCOREAPP1_0_OR_GREATER || NET46_OR_GREATER || NETSTANDARD1_3_OR_GREATER)
+namespace System
+{
+	internal static unsafe class Buffer
+	{
+		public static void MemoryCopy(byte* to, byte* from, nuint _, nuint length){
+			if(length < int.MaxValue) new ReadOnlySpan<byte>(from, (int)length).CopyTo(new Span<byte>(to, (int)length));
+			else for(nuint i = 0; i < length; i++) from[i] = to[i];
+		}
 	}
 }
 #endif
