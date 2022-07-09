@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using UltralightNet.LowStuff;
 
 namespace UltralightNet
 {
@@ -45,7 +46,7 @@ namespace UltralightNet
 	}
 
 	[DebuggerDisplay("{ToString(),raw}")]
-	public unsafe sealed class JSString : INativeContainer<JSString>, IEquatable<JSString>, ICloneable
+	public unsafe sealed class JSString : INativeContainer<JSString>, INativeContainerInterface<JSString>, IEquatable<JSString>, ICloneable
 	{
 		private readonly void* handle;
 		public void* Handle
@@ -61,6 +62,7 @@ namespace UltralightNet
 		private readonly bool dispose = true;
 		public bool IsDisposed { get; private set; } = false;
 
+		[Obsolete]
 		internal JSString(void* handle)
 		{
 			Handle = handle;
@@ -75,22 +77,61 @@ namespace UltralightNet
 		}
 		public JSString(ReadOnlySpan<char> characters) : this(MemoryMarshal.Cast<char, ushort>(characters)) { }
 
-		public JSString Clone() => new(JavaScriptMethods.JSStringRetain(Handle));
+		public JSString Clone()
+		{
+			JSString returnValue = new(JavaScriptMethods.JSStringRetain(Handle));
+			GC.KeepAlive(this);
+			return returnValue;
+		}
 		object ICloneable.Clone() => Clone();
 
-		public nuint Length => JavaScriptMethods.JSStringGetLength(Handle);
+		public nuint Length
+		{
+			get
+			{
+				nuint returnValue = JavaScriptMethods.JSStringGetLength(Handle);
+				GC.KeepAlive(this);
+				return returnValue;
+			}
+		}
 
-		public ReadOnlySpan<char> UTF16Data => new(JavaScriptMethods.JSStringGetCharactersPtr(Handle), (int)Length); // INTEROPTODO: INT64
-		public char* UTF16DataRaw => (char*)JavaScriptMethods.JSStringGetCharactersPtr(Handle);
+		/// <remarks>Use <see cref="GC.KeepAlive(object?)" /> to keep <see cref="JSString" /> instance alive.</remarks>
+		public ReadOnlySpan<char> UTF16Data => new(UTF16DataRaw, checked((int)Length));
+		/// <remarks>Use <see cref="GC.KeepAlive(object?)" /> to keep <see cref="JSString" /> instance alive.</remarks>
+		public char* UTF16DataRaw
+		{
+			get
+			{
+				char* returnValue = (char*)JavaScriptMethods.JSStringGetCharactersPtr(Handle);
+				GC.KeepAlive(this);
+				return returnValue;
+			}
+		}
 		// do not implement GetPinnableReference because there are UTF16DataRaw
 
-		public nuint MaximumUTF8CStringSize => JavaScriptMethods.JSStringGetMaximumUTF8CStringSize(Handle);
+		public nuint MaximumUTF8CStringSize
+		{
+			get
+			{
+				nuint returnValue = JavaScriptMethods.JSStringGetMaximumUTF8CStringSize(Handle);
+				GC.KeepAlive(this);
+				return returnValue;
+			}
+		}
+		public nuint GetUTF8(byte* buffer, nuint bufferSize)
+		{
+			nuint returnValue = JavaScriptMethods.JSStringGetUTF8CString(Handle, buffer, bufferSize);
+			GC.KeepAlive(this);
+			return returnValue;
+		}
+		public nuint GetUTF8(Span<byte> buffer) { fixed (byte* bufferPtr = buffer) { return GetUTF8(bufferPtr, (nuint)buffer.Length); } }
 
-		public nuint GetUTF8(byte* buffer, nuint bufferSize) => JavaScriptMethods.JSStringGetUTF8CString(Handle, buffer, bufferSize);
-		public nuint GetUTF8(Span<byte> buffer) { fixed (byte* bufferPtr = buffer) { return JavaScriptMethods.JSStringGetUTF8CString(Handle, bufferPtr, (nuint)buffer.Length); } } // INTEROPTODO: INT64
-
-		public override string ToString() => new((char*)UTF16DataRaw, 0, (int)Length);
-
+		public override string ToString()
+		{
+			string returnValue = new((char*)UTF16DataRaw, 0, checked((int)Length));
+			GC.KeepAlive(this);
+			return returnValue;
+		}
 		public override bool Equals(object? obj)
 		{
 			if (obj is string s) return Equals(new JSString(s.AsSpan()));
@@ -114,29 +155,20 @@ namespace UltralightNet
 		public override int GetHashCode() => unchecked((int)((nuint)handle ^ (Unsafe.As<bool, byte>(ref Unsafe.AsRef(dispose)))));
 #endif
 
-		public bool Equals(byte* other) => JavaScriptMethods.JSStringIsEqualToUTF8CString(Handle, other);
+		public bool Equals(byte* other)
+		{
+			bool returnValue = JavaScriptMethods.JSStringIsEqualToUTF8CString(Handle, other);
+			GC.KeepAlive(this);
+			return returnValue;
+		}
 		public bool Equals(ReadOnlySpan<byte> other) { fixed (byte* bytes = other) { return Equals(bytes); } }
 
-		public static implicit operator JSString(string obj) => new(obj is null ?
-#if NETSTANDARD2_1 || NETCOREAPP2_1_OR_GREATER
-		MemoryMarshal.CreateReadOnlySpan(
-#if NET5_0_OR_GREATER
-			ref Unsafe.NullRef<char>()
-#else
-			ref Unsafe.AsRef<char>(null)
-#endif
-			, 0)
-#else
-		new ReadOnlySpan<char>((char*)null, 0)
-#endif
-		: obj.AsSpan());
-		public static explicit operator string(JSString str) => str.ToString()!;
+		public static implicit operator JSString(string? str) => new(string.IsNullOrEmpty(str) ? ReadOnlySpan<char>.Empty : str.AsSpan());
+		public static explicit operator string(JSString str) => str.ToString();
 
-		public JSString FromPointer(void* ptr) => new(ptr);
+		public static JSString FromHandle(Handle<JSString> handle, bool dispose) => new((void*)handle, dispose);
 
-		~JSString() => Dispose();
-
-		public void Dispose()
+		public override void Dispose()
 		{
 			if (IsDisposed) return;
 

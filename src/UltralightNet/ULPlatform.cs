@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using UltralightNet.LowStuff;
 
 namespace UltralightNet;
 
@@ -35,34 +36,41 @@ public static unsafe class ULPlatform
 	private static readonly Dictionary<ULLogger, List<GCHandle>> loggerHandles = new(1);
 	private static readonly Dictionary<ULClipboard, List<GCHandle>> clipboardHandles = new(1);
 	private static readonly Dictionary<ULFileSystem, List<GCHandle>> filesystemHandles = new(1);
+	private static readonly Dictionary<ULFontLoader, List<GCHandle>> fontloaderHandles = new(1);
 	private static readonly Dictionary<ULGPUDriver, List<GCHandle>> gpudriverHandles = new(1);
 	private static readonly Dictionary<ULSurfaceDefinition, List<GCHandle>> surfaceHandles = new(1);
 
-	internal static void Handle(ref ULLogger originalLogger, in ULLogger newLogger, in Delegate? func = null)
+	internal static void Handle(ref ULLogger originalLogger, in ULLogger newLogger, Delegate? func = null)
 	{
 		if (!loggerHandles.Remove(originalLogger, out List<GCHandle>? handles)) handles = new(1);
 		if (func is not null) handles!.Add(GCHandle.Alloc(func));
 		loggerHandles[originalLogger = newLogger] = handles!;
 	}
-	internal static void Handle(ref ULClipboard originalClipboard, in ULClipboard newClipboard, in Delegate? func = null)
+	internal static void Handle(ref ULClipboard originalClipboard, in ULClipboard newClipboard, Delegate? func = null)
 	{
 		if (!clipboardHandles.Remove(originalClipboard, out List<GCHandle>? handles)) handles = new(3);
 		if (func is not null) handles!.Add(GCHandle.Alloc(func));
 		clipboardHandles[originalClipboard = newClipboard] = handles!;
 	}
-	internal static void Handle(ref ULFileSystem originalFileSystem, in ULFileSystem newFileSystem, in Delegate? func = null)
+	internal static void Handle(ref ULFileSystem originalFileSystem, in ULFileSystem newFileSystem, Delegate? func = null)
 	{
 		if (!filesystemHandles.Remove(originalFileSystem, out List<GCHandle>? handles)) handles = new(6);
 		if (func is not null) handles!.Add(GCHandle.Alloc(func));
 		filesystemHandles[originalFileSystem = newFileSystem] = handles!;
 	}
-	internal static void Handle(ref ULGPUDriver originalGPUDriver, in ULGPUDriver newGPUDriver, in Delegate? func = null)
+	internal static void Handle(ref ULFontLoader fontLoader, in ULFontLoader newFontLoader, Delegate? func = null)
+	{
+		if (!fontloaderHandles.Remove(fontLoader, out List<GCHandle>? handles)) handles = new(3);
+		if (func is not null) handles!.Add(GCHandle.Alloc(func));
+		fontloaderHandles[fontLoader = newFontLoader] = handles;
+	}
+	internal static void Handle(ref ULGPUDriver originalGPUDriver, in ULGPUDriver newGPUDriver, Delegate? func = null)
 	{
 		if (!gpudriverHandles.Remove(originalGPUDriver, out List<GCHandle>? handles)) handles = new(14);
 		if (func is not null) handles!.Add(GCHandle.Alloc(func));
 		gpudriverHandles[originalGPUDriver = newGPUDriver] = handles!;
 	}
-	internal static void Handle(ref ULSurfaceDefinition originalSurface, in ULSurfaceDefinition newSurface, in Delegate? func = null)
+	internal static void Handle(ref ULSurfaceDefinition originalSurface, in ULSurfaceDefinition newSurface, Delegate? func = null)
 	{
 		if (!surfaceHandles.Remove(originalSurface, out List<GCHandle>? handles)) handles = new(9);
 		if (func is not null) handles!.Add(GCHandle.Alloc(func));
@@ -149,12 +157,6 @@ public static unsafe class ULPlatform
 	public static bool ErrorGPUDriverNotSet { get; set; } = true;
 
 	public static bool ErrorWrongThread { get; set; } = true;
-	internal static Thread? thread;
-	internal static void CheckThread()
-	{
-		if (thread is null || !ErrorWrongThread) return;
-		if (Thread.CurrentThread != thread) throw new InvalidOperationException($"{nameof(ULPlatform.ErrorWrongThread)}: Use of ultralight api from a different thread.");
-	}
 
 	private static ULLogger _logger;
 	internal static ULFileSystem _filesystem;
@@ -240,25 +242,19 @@ public static unsafe class ULPlatform
 		}
 	}
 
+	public static Renderer CreateRenderer() => CreateRenderer(new());
 	public static Renderer CreateRenderer(ULConfig config, bool dispose = true)
 	{
-		thread = Thread.CurrentThread;
-		if (SetDefaultLogger && _logger.__LogMessage is null)
-		{
-			Console.WriteLine("UltralightNet: no logger set, console logger will be used.");
-			Logger = new()
-			{
-				LogMessage = (ULLogLevel level, in string message) => { foreach (ReadOnlySpan<char> line in new LineEnumerator(message.AsSpan())) { Console.WriteLine($"(UL) {level}: {line.ToString()}"); } }
-			};
-		}
+		if (config == default(ULConfig)) throw new ArgumentException($"You passed default({nameof(ULConfig)}). It's invalid. Use at least \"new {nameof(ULConfig)}()\"", nameof(config));
 		if (SetDefaultFileSystem && !fileSystemSet) // TODO
 		{
 			Console.WriteLine("UltralightNet: no filesystem set, default (with access only to required files) will be used.");
 
 			FileSystem = new()
 			{
-				FileExists = (in string file) =>
+				FileExists = (string file) =>
 				{
+					Console.WriteLine(file);
 					return file switch
 					{
 						"resources/cacert.pem" => true,
@@ -269,7 +265,7 @@ public static unsafe class ULPlatform
 						_ => false
 					};
 				},
-				GetFileMimeType = (in string file) =>
+				GetFileMimeType = (string file) =>
 				{
 					return file switch
 					{
@@ -279,7 +275,7 @@ public static unsafe class ULPlatform
 						_ => "application/octet-stream" // or "application/unknown"
 					};
 				},
-				GetFileCharset = (in string file) => "utf-8",
+				GetFileCharset = (string file) => "utf-8",
 				_OpenFile = (ULString* file) =>
 				{
 					Stream? s = ULString.NativeToManaged(file) switch
@@ -296,11 +292,11 @@ public static unsafe class ULPlatform
 					{
 						void* data = NativeMemory.Alloc((nuint)s.Length);
 						s.CopyTo(new UnmanagedMemoryStream((byte*)data, s.Length, s.Length, FileAccess.Write));
-						ULBuffer* buffer = ULBuffer.CreateFrom(data, (nuint)s.Length);
+						ULBuffer buffer = new(data, (nuint)s.Length);
 						NativeMemory.Free(data);
 						return buffer;
 					}
-					else return null;
+					else return default;
 				}
 			};
 		}
@@ -313,6 +309,16 @@ public static unsafe class ULPlatform
 				throw new FileNotFoundException($"{typeof(ULFileSystem)} doesn't provide icudt67l.dat from resources/ folder. (Disable error by setting ULPlatform.ErrorMissingResources to false.)");
 			}
 		}
-		return new Renderer(config, dispose);
+		if (SetDefaultLogger && _logger.__LogMessage is null)
+		{
+			Console.WriteLine("UltralightNet: no logger set, console logger will be used.");
+			Logger = new()
+			{
+				LogMessage = (ULLogLevel level, string message) => { foreach (ReadOnlySpan<char> line in new LineEnumerator(message.AsSpan())) { Console.WriteLine($"(UL) {level}: {line.ToString()}"); } }
+			};
+		}
+		var returnValue = Renderer.FromHandle((Handle<Renderer>)Methods.ulCreateRenderer(config), true);
+		returnValue.ThreadId = Thread.CurrentThread.ManagedThreadId;
+		return returnValue;
 	}
 }

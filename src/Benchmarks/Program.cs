@@ -15,6 +15,7 @@ public class Program
 	}
 }
 
+[MemoryDiagnoser]
 public unsafe class StringBenchmark
 {
 	public StringBenchmark() { }
