@@ -8,19 +8,34 @@
 		<RepositoryUrl>https://github.com/SupinePandora43/UltralightNet</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
 		<SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
 		<PackageOutputPath>$(SolutionDir)</PackageOutputPath>
 		<DebugType>Portable</DebugType>
 
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>enable</Nullable>
-		<LangVersion>preview</LangVersion>
+		<LangVersion>10</LangVersion> <!-- Set to 11, when .NET 7 comes out <3 -->
+		<ImplicitUsings>disable</ImplicitUsings>
 
 		<NoWarn>1006</NoWarn>
 		<AnalysisModeReliability>all</AnalysisModeReliability>
+
+		<IsTrimmable>true</IsTrimmable>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>link</TrimMode>
+
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+
+		<None Include="$(MSBuildThisFileDirectory)/README.md" Pack="true" PackagePath="README.md"/>
 	</ItemGroup>
 </Project>

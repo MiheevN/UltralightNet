@@ -6,13 +6,12 @@
 		<PackageId>UltralightNet.Resources</PackageId>
 		<Description>Ultralight 'resources' folder</Description>
 
-		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
 		<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 		<RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
 		<RunAnalyzers>false</RunAnalyzers>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Condition="'$(TargetFramework)'!='net5.0'" Include="System.Memory" Version="4.5.4" />
 		<Content Include="resources/cacert.pem">
 			<Pack>True</Pack>
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -43,6 +42,6 @@
 			<PackageCopyToOutput>True</PackageCopyToOutput>
 			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
 		</Content>
-		<None Update="resources/cacert.pem;resources/icudt67l.dat;resources/mediaControls.css;resources/mediaControls.js;resources/mediaControlsLocalizedStrings.js" Pack="true" PackagePath="/contentFiles" />
+		<None Include="resources/cacert.pem;resources/icudt67l.dat;resources/mediaControls.css;resources/mediaControls.js;resources/mediaControlsLocalizedStrings.js" Pack="true" PackagePath="/contentFiles" />
 	</ItemGroup>
 </Project>
