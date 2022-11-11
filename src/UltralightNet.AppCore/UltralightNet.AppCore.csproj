@@ -4,7 +4,7 @@
 		<TargetFrameworks>net6.0</TargetFrameworks>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<LangVersion>preview</LangVersion>
+		<LangVersion>10</LangVersion>
 
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<IncludeSymbols>true</IncludeSymbols>

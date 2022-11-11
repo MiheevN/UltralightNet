@@ -3,7 +3,7 @@
 		<TargetFrameworks>net6.0</TargetFrameworks>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-		<LangVersion>preview</LangVersion>
+		<LangVersion>10</LangVersion>
 		<UseAppHost>true</UseAppHost>
 		<IsPackable>true</IsPackable>
 
