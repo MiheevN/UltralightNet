@@ -43,8 +43,8 @@ public unsafe struct ULGPUState : IEquatable<ULGPUState>
 	private float scalar_6;
 	private float scalar_7;
 	public readonly Span<float> Scalar =>
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
-		MemoryMarshal.CreateSpan<float>(ref Unsafe.AsRef(scalar_0), 8);
+#if (NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1) && !NET6_0_OR_GREATER
+		MemoryMarshal.CreateSpan(ref Unsafe.AsRef(scalar_0), 8);
 #else
 		new Span<float>(Unsafe.AsPointer(ref Unsafe.AsRef(scalar_0)), 8);
 #endif
@@ -58,7 +58,7 @@ public unsafe struct ULGPUState : IEquatable<ULGPUState>
 	private Vector4 vector_6;
 	private Vector4 vector_7;
 	public readonly Span<Vector4> Vector =>
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
+#if (NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1) && !NET6_0_OR_GREATER
 		MemoryMarshal.CreateSpan<Vector4>(ref Unsafe.AsRef(vector_0), 8);
 #else
 		new Span<Vector4>(Unsafe.AsPointer(ref Unsafe.AsRef(vector_0)), 8);
@@ -85,7 +85,7 @@ public unsafe struct ULGPUState : IEquatable<ULGPUState>
 	private Matrix4x4 clip_6;
 	private Matrix4x4 clip_7;
 	public readonly Span<Matrix4x4> Clip =>
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1
+#if (NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1) && !NET6_0_OR_GREATER
 		MemoryMarshal.CreateSpan<Matrix4x4>(ref Unsafe.AsRef(clip_0), 8).Slice(0, (int)_ClipSize);
 #else
 		new Span<Matrix4x4>(Unsafe.AsPointer(ref Unsafe.AsRef(clip_0)), (int)ClipSize);

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net471;net46;net451;net45;netstandard2.1;netstandard2</TargetFrameworks>
+		<TargetFrameworks>net6.0</TargetFrameworks>
 		<Platform>x64</Platform>
 
 		<Authors>Ultralight, Inc.</Authors>
@@ -13,12 +13,6 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 	<ItemGroup>
-		<!-- <None Include="LICENSE.txt" Pack="true" PackagePath="LICENSE.txt"/> -->
-		<!-- <None Include="EULA.txt" Pack="true" PackagePath="EULA.txt"/> -->
-		<!-- <None Include="NOTICES.txt" Pack="true" PackagePath="NOTICES.txt"/> -->
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="UltralightNet.Binaries" Version="$(Version)" />
 
 		<_NativeAssetName Include="runtimes/win-x64/native/AppCore.dll" PackagePath="runtimes/win-x64/native" />
 		<_NativeAssetName Include="runtimes/osx-x64/native/libAppCore.dylib" PackagePath="runtimes/osx-x64/native" />
@@ -26,5 +20,8 @@
 
 		<_ExistingAssets Include="@(_NativeAssetName)" />
 		<Content Include="@(_ExistingAssets->'%(Identity)')" CopyToOutputDirectory="PreserveNewest" PackagePath="%(PackagePath)" Pack="true" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\UltralightNet.AppCore\UltralightNet.AppCore.csproj" />
 	</ItemGroup>
 </Project>
