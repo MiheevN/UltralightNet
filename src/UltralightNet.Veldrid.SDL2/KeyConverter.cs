@@ -1,3 +1,5 @@
+using System;
+using System.Text;
 using Veldrid;
 
 namespace UltralightNet.Veldrid.SDL2
@@ -30,27 +32,36 @@ namespace UltralightNet.Veldrid.SDL2
 			else
 				keycode = SDLtoUL(key);
 
-			if (k.Down)
-				if (key > (Key)82 && key < (Key)119 || key == Key.Space)
+			if (k.Down == false || true)
+			{
+				goto Finish;
+			}
+
+			if ((key > (Key)82 && key < (Key)119) || key == Key.Space)
+			{
+				type = ULKeyEventType.Char;
+				if (key == Key.Space)
 				{
-					type = ULKeyEventType.Char;
-					if (key == Key.Space)
+					text = " ";
+				}
+				else
+				if (key < (Key)109)
+				{
+					text = Convert.ToChar(keycode).ToString();
+					//text = ((modifiers & ULKeyEventModifiers.ShiftKey) is not 0) ? key.ToString() : key.ToString().ToLower();
+					if ((modifiers & ULKeyEventModifiers.ShiftKey) is 0)
 					{
-						text = " ";
-					}
-					else
-					if (key < (Key)109)
-					{
-						text = ((modifiers & ULKeyEventModifiers.ShiftKey) is not 0) ? key.ToString() : key.ToString().ToLower();
-					}
-					else
-					{
-						text = ((int)key - 109).ToString();
+						text = text.ToLower();
 					}
 				}
+				else
+				{
+					text = ((int)key - 109).ToString();
+				}
+			}
 
-			return new ULKeyEvent(type, modifiers, keycode, 0, text, text,
-				key > (Key)66 && key < (Key)77, k.Repeat, false);
+			Finish:
+			return new ULKeyEvent(type, modifiers, keycode, 0, text, text, key > (Key)66 && key < (Key)77, k.Repeat, false);
 		}
 		public static int SDLtoUL(Key key)
 		{
@@ -114,7 +125,7 @@ namespace UltralightNet.Veldrid.SDL2
 
 				Key.PrintScreen => ULKeyCodes.GK_SNAPSHOT,
 				Key.ScrollLock => ULKeyCodes.GK_SCROLL,
-				
+
 				Key.Insert => ULKeyCodes.GK_INSERT,
 				Key.Delete => ULKeyCodes.GK_DELETE,
 				Key.Home => ULKeyCodes.GK_HOME,
@@ -123,10 +134,11 @@ namespace UltralightNet.Veldrid.SDL2
 				Key.PageDown => ULKeyCodes.GK_NEXT,
 
 				Key.Left => ULKeyCodes.GK_LEFT,
-				Key.Right=> ULKeyCodes.GK_RIGHT,
+				Key.Right => ULKeyCodes.GK_RIGHT,
 				Key.Up => ULKeyCodes.GK_UP,
 				Key.Down => ULKeyCodes.GK_DOWN,
-								
+
+
 				_ => (int)key + 29
 			};
 
